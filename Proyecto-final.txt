@@ -1,0 +1,504 @@
+Main.java
+
+import Coneccion.*;
+import java.sql.ResultSet;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class Main {
+    private static Connection conn = null;
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Panel de Administrador");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(400, 300);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(6, 1));
+
+        JButton alumnoBtn = new JButton("Insertar Alumno");
+        JButton cursoBtn = new JButton("Insertar Curso");
+        JButton catedraticoBtn = new JButton("Insertar Catedrático");
+        JButton asignacionBtn = new JButton("Insertar Asignación");
+        JButton inscripcionBtn = new JButton("Insertar Inscripción");
+        JButton calificacionBtn = new JButton("Insertar Calificación");
+
+        panel.add(alumnoBtn);
+        panel.add(cursoBtn);
+        panel.add(catedraticoBtn);
+        panel.add(asignacionBtn);
+        panel.add(inscripcionBtn);
+        panel.add(calificacionBtn);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        alumnoBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioAlumno.mostrarFormulario();
+            }
+        });
+
+        cursoBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioCurso.mostrarFormulario();
+            }
+        });
+
+        catedraticoBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioCatedratico.mostrarFormulario();
+            }
+        });
+
+        asignacionBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioAsignacion.mostrarFormulario();
+            }
+        });
+
+        inscripcionBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioInscripcion.mostrarFormulario();
+            }
+        });
+
+        calificacionBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FormularioCalificacion.mostrarFormulario();
+            }
+        });
+        Coneccion conexion = new Coneccion();
+        conn = conexion.conector();
+        if (conn != null) {
+            System.out.println("Conexión establecida con éxito.");
+            buscarAlumnos();
+            buscarCatedraticos();
+        } else {
+            System.out.println("Error al establecer la conexión.");
+        }
+    }
+
+    public static void buscarAlumnos() {
+        try {
+            PreparedStatement statement = conn.prepareStatement("SELECT * FROM alumno");
+            ResultSet rs = statement.executeQuery();
+            System.out.println("Lista de Alumnos:");
+            while (rs.next()) {
+                System.out.println(rs.getInt("id_alumno") + " - " + rs.getString("nombre") + " " + rs.getString("apellido"));
+            }
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.out.println("Error al buscar alumnos: " + ex.getMessage());
+        }
+    }
+
+    public static void buscarCatedraticos() {
+        try {
+            PreparedStatement statement = conn.prepareStatement("SELECT * FROM catedraticos");
+            ResultSet rs = statement.executeQuery();
+            System.out.println("Lista de Catedráticos:");
+            while (rs.next()) {
+                System.out.println(rs.getInt("id_catedratico") + " - " + rs.getString("nombre") + " " + rs.getString("apellido"));
+            }
+            statement.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.out.println("Error al buscar catedráticos: " + ex.getMessage());
+        }
+    }
+}
+
+
+
+Coneccion.java
+
+package Coneccion;
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Coneccion {
+    private static final String URL = "jdbc:mysql://localhost/Universidad";
+    private static final String USER = "root";
+    private static final String PASSWORD = "jonathanramos2105";
+
+    public Connection conector() {
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+
+        }
+        return conn;
+    }
+}
+
+
+
+FormularioAlumno.java
+
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package Coneccion;
+
+import java.awt.Component;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FormularioAlumno {
+    public FormularioAlumno() {
+    }
+
+    public static void mostrarFormulario() {
+        JTextField nombreField = new JTextField(10);
+        JTextField apellidoField = new JTextField(10);
+        JTextField fechaNacimientoField = new JTextField(10);
+        JTextField direccionField = new JTextField(10);
+        JTextField telefonoField = new JTextField(10);
+        JTextField emailField = new JTextField(10);
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(6, 2));
+        myPanel.add(new JLabel("Nombre:"));
+        myPanel.add(nombreField);
+        myPanel.add(new JLabel("Apellido:"));
+        myPanel.add(apellidoField);
+        myPanel.add(new JLabel("Fecha de Nacimiento:"));
+        myPanel.add(fechaNacimientoField);
+        myPanel.add(new JLabel("Dirección:"));
+        myPanel.add(direccionField);
+        myPanel.add(new JLabel("Teléfono:"));
+        myPanel.add(telefonoField);
+        myPanel.add(new JLabel("Email:"));
+        myPanel.add(emailField);
+        int result = JOptionPane.showConfirmDialog((Component)null, myPanel, "Por favor ingrese los datos del Alumno", 2);
+        if (result == 0) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarAlumno(nombreField.getText(), apellidoField.getText(), fechaNacimientoField.getText(), direccionField.getText(), telefonoField.getText(), emailField.getText());
+        }
+
+    }
+}
+
+
+
+
+FormularioAsignacion.java
+
+package Coneccion;
+import javax.swing.*;
+import java.awt.*;
+public class FormularioAsignacion {
+    public static void mostrarFormulario() {
+        JTextField idCursoField = new JTextField(10);
+        JTextField idCatedraticoField = new JTextField(10);
+        JTextField semestreField = new JTextField(10);
+        JTextField anoField = new JTextField(10);
+
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(4, 2));
+        myPanel.add(new JLabel("ID del Curso:"));
+        myPanel.add(idCursoField);
+        myPanel.add(new JLabel("ID del Catedrático:"));
+        myPanel.add(idCatedraticoField);
+        myPanel.add(new JLabel("Semestre:"));
+        myPanel.add(semestreField);
+        myPanel.add(new JLabel("Año:"));
+        myPanel.add(anoField);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                "Por favor ingrese los datos de la Asignación", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarAsignacionCursoCatedratico(
+                    Integer.parseInt(idCursoField.getText()),
+                    Integer.parseInt(idCatedraticoField.getText()),
+                    semestreField.getText(),
+                    Integer.parseInt(anoField.getText())
+            );
+        }
+    }
+}
+
+
+
+
+FormularioCalificacion.java
+
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package Coneccion;
+
+import java.awt.Component;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FormularioCalificacion {
+    public FormularioCalificacion() {
+    }
+
+    public static void mostrarFormulario() {
+        JTextField idInscripcionField = new JTextField(10);
+        JTextField calificacionField = new JTextField(10);
+        JTextField fechaCalificacionField = new JTextField(10);
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(3, 2));
+        myPanel.add(new JLabel("ID de la Inscripción:"));
+        myPanel.add(idInscripcionField);
+        myPanel.add(new JLabel("Calificación:"));
+        myPanel.add(calificacionField);
+        myPanel.add(new JLabel("Fecha de Calificación:"));
+        myPanel.add(fechaCalificacionField);
+        int result = JOptionPane.showConfirmDialog((Component)null, myPanel, "Por favor ingrese los datos de la Calificación", 2);
+        if (result == 0) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarCalificacion(Integer.parseInt(idInscripcionField.getText()), Double.parseDouble(calificacionField.getText()), fechaCalificacionField.getText());
+        }
+
+    }
+}
+
+
+
+
+FormularioCatedratico.java
+
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package Coneccion;
+
+import java.awt.Component;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FormularioCatedratico {
+    public FormularioCatedratico() {
+    }
+
+    public static void mostrarFormulario() {
+        JTextField nombreField = new JTextField(10);
+        JTextField apellidoField = new JTextField(10);
+        JTextField especialidadField = new JTextField(10);
+        JTextField emailField = new JTextField(10);
+        JTextField telefonoField = new JTextField(10);
+        JTextField fechaContratacionField = new JTextField(10);
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(6, 2));
+        myPanel.add(new JLabel("Nombre:"));
+        myPanel.add(nombreField);
+        myPanel.add(new JLabel("Apellido:"));
+        myPanel.add(apellidoField);
+        myPanel.add(new JLabel("Especialidad:"));
+        myPanel.add(especialidadField);
+        myPanel.add(new JLabel("Email:"));
+        myPanel.add(emailField);
+        myPanel.add(new JLabel("Teléfono:"));
+        myPanel.add(telefonoField);
+        myPanel.add(new JLabel("Fecha de Contratación:"));
+        myPanel.add(fechaContratacionField);
+        int result = JOptionPane.showConfirmDialog((Component)null, myPanel, "Por favor ingrese los datos del Catedrático", 2);
+        if (result == 0) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarCatedratico(nombreField.getText(), apellidoField.getText(), especialidadField.getText(), emailField.getText(), telefonoField.getText(), fechaContratacionField.getText());
+        }
+
+    }
+}
+
+
+
+
+FormularioCurso.java
+
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package Coneccion;
+
+import java.awt.Component;
+import java.awt.GridLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class FormularioCurso {
+    public FormularioCurso() {
+    }
+
+    public static void mostrarFormulario() {
+        JTextField nombreCursoField = new JTextField(10);
+        JTextField descripcionField = new JTextField(10);
+        JTextField creditosField = new JTextField(10);
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(3, 2));
+        myPanel.add(new JLabel("Nombre del Curso:"));
+        myPanel.add(nombreCursoField);
+        myPanel.add(new JLabel("Descripción:"));
+        myPanel.add(descripcionField);
+        myPanel.add(new JLabel("Créditos:"));
+        myPanel.add(creditosField);
+        int result = JOptionPane.showConfirmDialog((Component)null, myPanel, "Por favor ingrese los datos del Curso", 2);
+        if (result == 0) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarCurso(nombreCursoField.getText(), descripcionField.getText(), Integer.parseInt(creditosField.getText()));
+        }
+
+    }
+}
+
+
+FormularioIncripcion.java
+
+package Coneccion;
+import javax.swing.*;
+import java.awt.*;
+
+public class FormularioInscripcion {
+
+    public static void mostrarFormulario() {
+        JTextField idAlumnoField = new JTextField(10);
+        JTextField idAsignacionField = new JTextField(10);
+
+        JPanel myPanel = new JPanel();
+        myPanel.setLayout(new GridLayout(2, 2));
+        myPanel.add(new JLabel("ID del Alumno:"));
+        myPanel.add(idAlumnoField);
+        myPanel.add(new JLabel("ID de la Asignación:"));
+        myPanel.add(idAsignacionField);
+
+        int result = JOptionPane.showConfirmDialog(null, myPanel,
+                "Por favor ingrese los datos de la Inscripción", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            InsertarDatos insertar = new InsertarDatos();
+            insertar.insertarInscripcion(
+                    Integer.parseInt(idAlumnoField.getText()),
+                    Integer.parseInt(idAsignacionField.getText())
+            );
+        }
+    }
+}
+
+
+
+InsertarDatos.java
+
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package Coneccion;
+
+import java.awt.Component;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
+public class InsertarDatos {
+    private Coneccion conexion = new Coneccion();
+
+    public InsertarDatos() {
+    }
+
+    public void insertarAlumno(String nombre, String apellido, String fechaNacimiento, String direccion, String telefono, String email) {
+        this.insertarDatos("alumno", "nombre, apellido, fecha_nacimiento, direccion, telefono, email", "?, ?, ?, ?, ?, ?", nombre, apellido, fechaNacimiento, direccion, telefono, email);
+    }
+
+    public void insertarCurso(String nombreCurso, String descripcion, int creditos) {
+        this.insertarDatos("cursos", "nombre_curso, descripcion, creditos", "?, ?, ?", nombreCurso, descripcion, creditos);
+    }
+
+    public void insertarCatedratico(String nombre, String apellido, String especialidad, String email, String telefono, String fechaContratacion) {
+        this.insertarDatos("catedraticos", "nombre, apellido, especialidad, email, telefono, fecha_contratacion", "?, ?, ?, ?, ?, ?", nombre, apellido, especialidad, email, telefono, fechaContratacion);
+    }
+
+    public void insertarAsignacionCursoCatedratico(int idCurso, int idCatedratico, String semestre, int ano) {
+        this.insertarDatos("asignacion_cursos_catedraticos", "id_curso, id_catedratico, semestre, ano", "?, ?, ?, ?", idCurso, idCatedratico, semestre, ano);
+    }
+
+    public void insertarInscripcion(int idAlumno, int idAsignacion) {
+        this.insertarDatos("inscripciones", "id_alumno, id_asignacion", "?, ?", idAlumno, idAsignacion);
+    }
+
+    public void insertarCalificacion(int idInscripcion, double calificacion, String fechaCalificacion) {
+        this.insertarDatos("calificaciones", "id_inscripcion, calificacion, fecha_calificacion", "?, ?, ?", idInscripcion, calificacion, fechaCalificacion);
+    }
+
+    private void insertarDatos(String tabla, String columnas, String placeholders, Object... valores) {
+        Connection conn = null;
+        PreparedStatement statement = null;
+
+        try {
+            conn = this.conexion.conector();
+            if (conn != null) {
+                String sql = "INSERT INTO " + tabla + " (" + columnas + ") VALUES (" + placeholders + ")";
+                statement = conn.prepareStatement(sql);
+
+                int filasInsertadas;
+                for(filasInsertadas = 0; filasInsertadas < valores.length; ++filasInsertadas) {
+                    statement.setObject(filasInsertadas + 1, valores[filasInsertadas]);
+                }
+
+                filasInsertadas = statement.executeUpdate();
+                if (filasInsertadas > 0) {
+                    JOptionPane.showMessageDialog((Component)null, "Datos insertados exitosamente en " + tabla + "!");
+                }
+            } else {
+                JOptionPane.showMessageDialog((Component)null, "Error en la conexión a la base de datos.");
+            }
+        } catch (SQLException var17) {
+            var17.printStackTrace();
+            JOptionPane.showMessageDialog((Component)null, "Error al insertar los datos en " + tabla + ": " + var17.getMessage());
+        } finally {
+            try {
+                if (statement != null) {
+                    statement.close();
+                }
+
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException var16) {
+                var16.printStackTrace();
+            }
+
+        }
+
+    }
+}
