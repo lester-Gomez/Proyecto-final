@@ -1,0 +1,77 @@
+-- Crear la base de datos
+CREATE DATABASE universidad;
+USE universidad;
+
+-- Crear la tabla de alumnos
+CREATE TABLE alumno (
+    id_alumno INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE NOT NULL,
+    direccion VARCHAR(255),
+    telefono VARCHAR(20),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear la tabla de cursos
+CREATE TABLE cursos (
+    id_curso INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_curso VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    creditos INT NOT NULL,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Crear la tabla de catedráticos
+CREATE TABLE catedraticos (
+    id_catedratico INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    especialidad VARCHAR(100),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    telefono VARCHAR(20),
+    fecha_contratacion DATE NOT NULL
+);
+
+-- Crear la tabla de asignación de cursos a catedráticos
+CREATE TABLE asignacion_cursos_catedraticos (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_curso INT NOT NULL,
+    id_catedratico INT NOT NULL,
+    semestre VARCHAR(10) NOT NULL,
+    ano INT NOT NULL,
+    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_curso) REFERENCES cursos(id_curso),
+    FOREIGN KEY (id_catedratico) REFERENCES catedraticos(id_catedratico)
+);
+
+-- Crear la tabla de inscripciones
+CREATE TABLE inscripciones (
+    id_inscripcion INT AUTO_INCREMENT PRIMARY KEY,
+    id_alumno INT NOT NULL,
+    id_asignacion INT NOT NULL,
+    fecha_inscripcion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_alumno) REFERENCES alumno(id_alumno),
+    FOREIGN KEY (id_asignacion) REFERENCES asignacion_cursos_catedraticos(id_asignacion)
+);
+
+-- Crear la tabla de calificaciones
+CREATE TABLE calificaciones (
+    id_calificacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_inscripcion INT NOT NULL,
+    calificacion DECIMAL(4, 2) NOT NULL,
+    fecha_calificacion DATE NOT NULL,
+    FOREIGN KEY (id_inscripcion) REFERENCES inscripciones(id_inscripcion)
+);
+
+-- Crear la tabla de usuarios
+CREATE TABLE usuarios (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_usuario VARCHAR(50) UNIQUE NOT NULL,
+    contrasena VARCHAR(255) NOT NULL,usuariosrol ENUM('admin', 'alumno', 'catedratico') NOT NULL,
+    id_alumno INT,
+    id_catedratico INT,
+    FOREIGN KEY (id_alumno) REFERENCES alumno(id_alumno),
+    FOREIGN KEY (id_catedratico) REFERENCES catedraticos(id_catedratico)
+);
